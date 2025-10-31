@@ -22,7 +22,7 @@ namespace API.Controllers
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetAll()
         {
             var products = await _productService.GetAllAsync();
-            return Ok(products);
+            return Ok(new Response<IEnumerable<ProductDto>>(products, "Products retrieved successfully", true));
         }
 
         [HttpGet("{id}")]
@@ -32,15 +32,23 @@ namespace API.Controllers
             if (product == null)
                 return NotFound();
 
-            return Ok(product);
+            return Ok(new Response<ProductDto>(product, "Product retrieved successfully", true));
         }
 
         [HttpPost]
-        public async Task<ActionResult<ProductDto>> Create(CreateProductDto createProductDto)
+        public async Task<ActionResult<Response<ProductDto>>> Create(CreateProductDto createProductDto)
         {
             var product = await _productService.CreateAsync(createProductDto);
-            return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+
+            var response = new Response<ProductDto>(
+                product,
+                "Product created successfully",
+                true
+            );
+
+            return CreatedAtAction(nameof(GetById), new { id = product.Id }, response);
         }
+
 
         [HttpPut("{id}")]
         public async Task<ActionResult<ProductDto>> Update(int id, UpdateProductDto updateProductDto)
@@ -49,7 +57,7 @@ namespace API.Controllers
             if (product == null)
                 return NotFound();
 
-            return Ok(product);
+            return Ok(new Response<ProductDto>(product, "Product updated successfully", true));
         }
 
         [HttpDelete("{id}")]
